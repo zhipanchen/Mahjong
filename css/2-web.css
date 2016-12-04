@@ -1,0 +1,172 @@
+﻿body{
+  font-family:"黑体";
+  margin:0px;
+  padding:0px;
+} 
+.pageHead{
+  height:8%;
+  min-height:40px;
+  margin-top:2%;
+  padding:0 10px;
+}
+.input-group{
+  width:100%;
+  margin:5px;
+}
+.input-group-addon{
+  padding:0px;
+  margin:0px;
+}
+.searchBox{
+  height:90px;
+  font-size:50px;
+}
+searchBoxPicture{
+  height:90px;
+  width:auto;
+}
+.pageContent{
+  height:69%;
+  min-height:360px;
+}
+.content{
+  height:312px;
+  margin:0px 5px 5px 5px;
+  border-radius:3px;
+  padding:0 10px;
+}
+.content ul{
+  list-style:none;
+  height:300px;
+  padding:0px;
+  margin:0px;
+  border:1px solid #DADADA;
+}
+.content ul li{
+  width:50%;
+  height:100px;
+  float:left;
+  padding-left:20px;
+}
+.content ul li span{
+  font-size:45px;
+}
+.content ul li label{
+  font-size:45px;
+}
+.btn-primary{
+  font-size:40px;
+}
+.btn-danger{
+  font-size:40px;
+}
+.buttonLi{
+  height:30px;
+}
+.pagination{
+  padding:0px;
+  margin:0px;
+  font-size:60px;
+}
+.pageFloot{
+  height:11%;
+  padding:0 10px;
+}
+.btn-success{
+    width:50%;
+    height:100%;
+    font-size:60px;
+    float:left;
+}
+.btn-info{
+    width:50%;
+    height:100%;
+    font-size:60px;
+    float:left;
+}
+#addFloatBox{
+  width:70%;
+  height:330px;
+  position:absolute;
+  top:30%;
+  left:15%;
+  border:2px solid #000;
+  border-radius: 10px;
+  background-color:#EEEEEE;
+  display:none;
+}
+.diamondsNumber{
+  width:80%;
+  margin:2% auto 0 auto;
+}
+.yesButton{
+  width:40%;
+  margin:3% 2.5% 2.5% 4%;
+  border-radius: 10px;
+}
+.closeButton{
+  width:40%;
+  margin:3% 4% 2.5% 2.5%;
+  border-radius: 10px;
+}
+.line{
+  margin-top:15%;
+  border:1px solid #C0BEC0;
+}
+.spealspan{
+  width:40px;
+  font-size: 50px;
+}
+#removeFloatBox{
+  width:70%;
+  height:330px;
+  position:absolute;
+  top:30%;
+  left:15%;
+  border:2px solid #000;
+  border-radius: 10px;
+  background-color:#EEEEEE;
+  display:none;
+}
+.inputValue{
+  height:80px;
+  font-size:40px;
+  text-align:center;
+}
+.custmorNameTitle{
+  font-size:50px;
+  margin-top:2%;
+  display:block;
+  float:left;
+  text-indent:5%;
+}
+.custmorName{
+  font-size:50px;
+  margin-top:2%;
+  display:block;
+  float:left;
+}
+.chooseBox{
+  height:50px;
+  width:50px;
+}
+.searchBox1{
+  height:90px;
+  font-size:30px;
+  text-decoration:none;
+  background-color:#fff;
+}
+.check{
+  position:relative;
+  color:#000;
+  top:-15px;
+  left:0;
+}
+.pageText{
+  font-size:55px;
+  color:#498FCC;
+}
+.pageOther{
+  font-size:55px;
+  color:#498FCC;
+}

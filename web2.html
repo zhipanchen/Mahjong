@@ -1,0 +1,139 @@
+﻿<!DOCTYPE>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>管理</title>
+  <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"></link> 
+  <link type="text/css" rel="stylesheet" href="css/2-web.css"></link>
+</head>
+<body>
+<div class="allPage">
+  <div class="pageHead">
+    <div class="input-group">
+      <input type="text" class="form-control searchBox" placeholder="搜索" id="searchInformation">
+      <label id="searchAgentor" class="input-group-addon searchBox1">
+        <input type="checkbox" class="chooseBox" value="" id="checkboxValue"/>
+        <span class="check">搜索代理商<span>
+      </label>
+      <a href="javascript:;" id="searchFunction" class="input-group-addon"><img class="searchBoxPicture" src="image/searchPicture.png"/></a>
+    </div>
+  </div>
+  <div class="pageContent">
+    <div class="content">
+    <ul>
+      <li>
+        <span>名称：</span><label id="name1"></label>
+      </li>
+      <li>
+        <span>当前钻石：</span><label id="value1"></label>
+      </li>
+      <li>
+        <span>类型：</span><label id="type1"></label>
+      </li>
+      <li>
+        <span>ID：</span><label id="ID1"></label>
+      </li>
+      <li class="buttonLi">
+        <button type="button" class="btn btn-primary" id="adding1">增加</button>
+      </li>
+      <li  class="buttonLi">
+        <button type="button" class="btn btn-danger" id="reduce1">减少</button>
+      </li>
+    </ul>
+
+    <ul>
+      <li>
+        <span>名称：</span><label id="name2"></label>
+      </li>
+      <li>
+        <span>当前钻石：</span><label id="value2"></label>
+      </li>
+      <li>
+        <span>类型：</span><label id="type2"></label>
+      </li>
+      <li>
+        <span>ID：</span><label id="ID2"></label>
+      </li>
+      <li class="buttonLi">
+        <button type="button" class="btn btn-primary" id="adding2">增加</button>
+      </li>
+      <li  class="buttonLi">
+        <button type="button" class="btn btn-danger" id="reduce2">减少</button>
+      </li>
+    </ul>
+
+    <ul>
+      <li>
+        <span>名称：</span><label id="name3"></label>
+      </li>
+      <li>
+        <span>当前钻石：</span><label id="value3"></label>
+      </li>
+      <li>
+        <span>类型：</span><label id="type3"></label>
+      </li>
+      <li>
+        <span>ID：</span><label id="ID3"></label>
+      </li>
+      <li class="buttonLi">
+        <button type="button" class="btn btn-primary" id="adding3">增加</button>
+      </li>
+      <li  class="buttonLi">
+        <button type="button" class="btn btn-danger" id="reduce3">减少</button>
+      </li>
+    </ul>
+    </div>
+  </div>
+  <div align="center">
+    <div>
+      <span class="pageText" id="currectPages">1</span><span class="pageOther">&nbsp;/</span>
+      <span class="pageText" id="totalPages"></span><span class="pageOther">页</span>
+    </div>
+    <nav>
+      <ul class="pagination" id="paginations">
+        <li><a id="previousPage" href="javascript:;">&laquo;</a></li>
+        <li><a id="PageButton1" href="javascript:;">1</a></li>
+        <li><a id="PageButton2" href="javascript:;">2</a></li>
+        <li><a id="PageButton3" href="javascript:;">3</a></li>
+        <li><a id="PageButton4" href="javascript:;">4</a></li>
+        <li><a id="PageButton5" href="javascript:;">5</a></li>
+        <li><a id="nextPage" href="javascript:;">&raquo;</a></li>
+       </ul>
+     </nav>
+    </div>
+  <div class="pageFloot">
+    <button type="button" class="btn btn-success" id="agentor">代理商</button>
+    <button type="button" class="btn btn-info" id="custmor">用户</button>
+  </div>
+  <div id="addFloatBox">
+    <span class="custmorNameTitle">将对用户：</span><span class="custmorName" id="nameInformation1"></span>
+    <hr class="line"/>
+    <div class="input-group diamondsNumber" id="userTextBox">
+      <span class="input-group-addon spealspan">增 加</span>
+      <input type="number" class="form-control inputValue" id="addingDiamonds" placeholder="">
+      <span class="input-group-addon spealspan">钻 石</span>
+    </div>
+   <div class="buttonGroup">
+     <button type="button" class="btn btn-primary yesButton" id="addyes">确定</button>
+     <button type="button" class="btn btn-primary closeButton" id="addClose">关闭</button>
+   </div>
+  </div>
+  <div id="removeFloatBox">
+    <span class="custmorNameTitle">将对用户：</span><span class="custmorName" id="nameInformation2"></span>
+    <hr class="line"/>
+    <div class="input-group diamondsNumber" id="userTextBox">
+      <span class="input-group-addon spealspan">减 少</span>
+      <input type="number" class="form-control inputValue" id="removeDiamonds" placeholder="">
+      <span class="input-group-addon spealspan">钻 石</span>
+    </div>
+   <div class="buttonGroup">
+     <button type="button" class="btn btn-danger yesButton" id="removeyes">确定</button>
+     <button type="button" class="btn btn-danger closeButton" id="removeClose">关闭</button>
+   </div>
+  </div>
+</div>
+<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/web2.js"></script>
+</body>
+</html>
