@@ -22,6 +22,8 @@ function loginValidation(){//登录验证模块
                 data:{
                     account:$("#userName").val(),
                     password:$("#password").val()
+                    /*searchname:$("#loginUsr").val(),
+                    searchby:$("#loginPwd").val()*/
                 },
                 success:function(data){
                     transferValue=eval(data);

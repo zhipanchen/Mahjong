@@ -170,3 +170,20 @@ searchBoxPicture{
   font-size:55px;
   color:#498FCC;
 }
+.agentDiamondsNumber{
+  font-size:55px;
+  display:block;
+  color:white;
+}
+.agentDiamondsNumbers{
+  font-size:55px;
+  color:white;
+  display:block;
+}
+.agentDiamond{
+  width:50%;
+  height:100%;
+  text-align: center;
+  float:left;
+  background-color:#5CB85C;
+}

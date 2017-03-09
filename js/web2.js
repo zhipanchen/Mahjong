@@ -1,22 +1,23 @@
 //业务逻辑（star）---------------------------------------------------------------------------------------------------------
 var currectPages=document.getElementById("currectPages");
+//var totalPages=document.getElementById("totalPages");
 var currectPage=1,totalPages=1;
 var jurisdiction="管理员",pageStatus="normal";
 var controlerName,searchName;
 var firstPageSearch=false;
 
 $(function(){//主函数
-    jurisdictionContrlJudgement();//权限:判断模块
-    firstCustomerPageData();//初始化第一页数据
-    starPageDate();//权限：区别显示页面数据模块。
-    search();//搜索模块。
+    jurisdictionContrlJudgement();//权限:判断权限+元素显隐模块
+    firstCustomerPageData();//初始化用户第一页数据。（页面翻页模块被封装在里面。）
+    firstAgentDiamondsNumber();//初始化代理商剩余砖石数。
+    starPageDate();//用户，代理，搜索第一页页码控制器。
     addingDialogShow('adding','addFloatBox','block');//增加钻石，浮动框显示模块
     reduceDialogShow('reduce','removeFloatBox','block');//减少钻石，浮动框显示模块
     dialogHidden("addClose","addFloatBox");//确定按钮，浮动框消失模块
     dialogHidden("removeClose","removeFloatBox");//确定按钮，浮动框消失模块
 });
 
-function jurisdictionContrlJudgement(){//权限:判断模块
+function jurisdictionContrlJudgement(){//请求后台，获得登录者权限等级。
     $.ajax({
         type:"POST",
         url:"../yamj/login_msg.php",           
@@ -38,12 +39,13 @@ function jurisdictionContrlJudgement(){//权限:判断模块
     });
 };
 
-function jurisdictionContrlDisplay(){//权限：区别显示控件模块
+
+function jurisdictionContrlDisplay(){//通过权限等级，控制元素的显隐。
     var searchAgentor=document.getElementById("searchAgentor");
     var agentor=document.getElementById("agentor");
-    var custmor=document.getElementById("custmor");
+    var agentDiamondsDiv=document.getElementById("agentDiamondsDiv");
     if(jurisdiction=="管理员"){
-        //do nothing
+        agentDiamondsDiv.style.display="none";
     }else if(jurisdiction=="代理商"){
         for(var i=0;i<3;i++){
             searchAgentor.style.display="none";
@@ -51,19 +53,273 @@ function jurisdictionContrlDisplay(){//权限：区别显示控件模块
             obj2.style.display="none";
         };
         agentor.style.display="none";
-        custmor.style.width="100%";
     };
 };
 
-function starPageDate(){//页面初始状态
+function firstAgentDiamondsNumber(){
+    $.ajax({
+        type:"POST",
+        url:"../yamj/number.php",           
+        dataType:"json",                                      
+        data:{
+        },
+        success:function(data){
+            var datalist=eval(data);
+            $("#agentDiamonds").text(data);
+        }
+    });
+};
+
+function firstCustomerPageData(){//初始化用户第一页面,并显示总页码。
+    var dataList;
+    totalPagesObject=document.getElementById("totalPages");
+    $.ajax({
+        type:"POST",
+        url:"../yamj/index.php",           
+        dataType:"json",                                      
+        data:{
+            type:"normal",
+            page:"1"
+        },
+        success:function(data){
+            dataList=eval(data);
+            totalPagesObject.innerText=dataList.page;
+            totalPages=totalPagesObject.innerText;
+            for(var i=0;i<3;i++){
+                $("#name"+(i+1)).html("");
+                $("#value"+(i+1)).html("");
+                $("#ID"+(i+1)).html("");
+                $("#type"+(i+1)).html("");
+            };
+            for(var i=0;i<dataList.datalist.length;i++){
+               var names=document.getElementById("name"+(i+1));
+               var values=document.getElementById("value"+(i+1));
+               var types=document.getElementById("type"+(i+1));
+               var IDs=document.getElementById("ID"+(i+1));
+               names.innerText=dataList.datalist[i].PlayerName;
+               if(!dataList.datalist[i].DiaMond && typeof(dataList.datalist[i].DiaMond)!="undefined" && dataList.datalist[i].DiaMond!=0){
+                   dataList.datalist[i].DiaMond="0";
+               };
+               values.innerText=dataList.datalist[i].DiaMond;
+               if(dataList.datalist[i].type=="normal"){
+                   dataList.datalist[i].type="用户";
+               };
+               types.innerText=dataList.datalist[i].type;
+               IDs.innerText=dataList.datalist[i].AccountID;
+               if(totalPages>=5){
+                   pageControl();//大于四个页面控制模块
+               }else{
+                   lessPageControl();//小于四个页面控制模块
+               };
+           };
+        }
+    });
+    var currectPages=document.getSelection("currectPages");
+    currectPage=1;
+    currectPages.innerText=currectPage;
+};
+
+
+function firstAdminPageData(){//初始化代理商第一页面,并显示总页码。
+    var dataList;
+    totalPagesObject=document.getElementById("totalPages");
+    $.ajax({
+        type:"POST",
+        url:"../yamj/index.php",           
+        dataType:"json",                                      
+        data:{
+            type:"admin",
+            page:"1"
+        },
+        success:function(data){
+            dataList=eval(data);
+            totalPagesObject.innerText=dataList.page;
+            totalPages=totalPagesObject.innerText;
+            for(var i=0;i<3;i++){
+                $("#name"+(i+1)).html("");
+                $("#value"+(i+1)).html("");
+                $("#ID"+(i+1)).html("");
+                $("#type"+(i+1)).html("");
+            };
+            for(var i=0;i<dataList.datalist.length;i++){
+               var names=document.getElementById("name"+(i+1));
+               var values=document.getElementById("value"+(i+1));
+               var types=document.getElementById("type"+(i+1));
+               var IDs=document.getElementById("ID"+(i+1));
+               names.innerText=dataList.datalist[i].account;
+               if(dataList.datalist[i].diamond_number=="null"){
+                   dataList.datalist[i].diamond_number="0";
+               };
+               values.innerText=dataList.datalist[i].diamond_number;
+               if(dataList.datalist[i].type=="admin"){
+                   dataList.datalist[i].type="代理商";
+               };
+               types.innerText=dataList.datalist[i].type;
+               IDs.innerText=dataList.datalist[i].id;
+               if(totalPages>=5){
+                   pageControl();//大于四个页面控制模块
+               }else{
+                   lessPageControl();//小于四个页面控制模块
+               };
+           };
+        }
+    });
+    var currectPages=document.getElementById("currectPages");
+    currectPage=1;
+    currectPages.innerText=currectPage;
+};
+
+
+function firstSearchPageData(){//初始化代理商第一页面,并显示总页码。
+        var checkboxValue=document.getElementById("checkboxValue");
+        var totalPag=document.getElementById("totalPages");
+        var value;
+
+        firstPageSearch=true;
+        if($("#searchInformation").val()!=""){
+            if(jurisdiction=="用户"){
+                value=false;
+            }else{
+                value=checkboxValue.checked;
+            };
+        if(value){
+            $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:"admin",
+                name:$("#searchInformation").val(),
+                page:"1"
+            },
+            success:function(data){
+                var dataList=eval(data);
+                for(var i=0;i<3;i++){
+                    $("#name"+(i+1)).html("");
+                    $("#value"+(i+1)).html("");
+                    $("#ID"+(i+1)).html("");
+                    $("#type"+(i+1)).html("");
+
+                    $("#ul"+(i+1)).hide();
+                };
+                if(dataList.datalist.length!=0){
+                for(var i=0;i<dataList.datalist.length;i++){
+                    $("#ul"+(i+1)).show();
+                    var ids=document.getElementById("ID"+(i+1));
+                    var accounts=document.getElementById("name"+(i+1));
+                    var diamonds=document.getElementById("value"+(i+1));
+                    var types=document.getElementById("type"+(i+1));                    
+                    accounts.innerText=dataList.datalist[i].account;
+                    diamonds.innerText=dataList.datalist[i].diamond_number;
+                    if(dataList.datalist[i].type=="admin"){
+                       dataList.datalist[i].type="代理商";
+                    };
+                    types.innerText=dataList.datalist[i].type;
+                    ids.innerText=dataList.datalist[i].id;
+                    totalPages=dataList.page;
+                    var totalPagex=document.getElementById("totalPages");
+                    totalPagex.innerText=totalPages;
+                    currectPage=1;
+                    currectPages.innerText=currectPage;
+                    searchName=dataList.datalist[i].account;
+                    if(totalPages>=5){
+                        pageControl();//大于四个页面控制模块
+                    }else{
+                        lessPageControl();//小于四个页面控制模块
+                    };
+                    };
+                 }else{
+                     var searchInformation=document.getElementById("searchInformation");
+                     searchInformation.value="";
+                     searchInformation.placeholder="代理商不存在！";
+                     currectPage=0;
+                     currectPages.innerText="0";
+                     totalPages=0;
+                     var totalPagex=document.getElementById("totalPages");
+                     totalPagex.innerText="0";
+                     lessPageControl();
+                 };
+                 }
+             });
+        }else{
+            $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:"normal",
+                name:$("#searchInformation").val(),
+                page:"1"
+            },
+            success:function(data){
+                var dataList=eval(data);
+                for(var i=0;i<3;i++){
+                    $("#name"+(i+1)).html("");
+                    $("#value"+(i+1)).html("");
+                    $("#ID"+(i+1)).html("");
+                    $("#type"+(i+1)).html("");
+
+                    $("#ul"+(i+1)).hide();
+                };
+                if(dataList.datalist.length!=0){
+                for(var i=0;i<dataList.datalist.length;i++){//添加到的搜索信息。
+                     $("#ul"+(i+1)).show();
+                     var ids=document.getElementById("ID"+(i+1));
+                     var accounts=document.getElementById("name"+(i+1));
+                     var diamonds=document.getElementById("value"+(i+1));
+                     var types=document.getElementById("type"+(i+1));                    
+                     ids.innerText=dataList.datalist[i].AccountID;
+                     accounts.innerText=dataList.datalist[i].PlayerName;
+                     diamonds.innerText=dataList.datalist[i].DiaMond;
+                     if(dataList.datalist[i].type=="normal"){
+                     types.innerText="用户";
+                     totalPages=dataList.page;
+                     var totalPagex=document.getElementById("totalPages");
+                     totalPagex.innerText=totalPages;
+                     currectPage=1;
+                     currectPages.innerText=currectPage;
+                     searchName=dataList.datalist[i].account;
+                     if(totalPages>=5){
+                        pageControl();//大于四个页面控制模块
+                     }else{
+                        lessPageControl();//小于四个页面控制模块
+                     };
+                     };
+                   };
+                 }else{
+                     var searchInformation=document.getElementById("searchInformation");
+                     searchInformation.value="";
+                     searchInformation.placeholder="用户不存在！";
+                     currectPage=0;
+                     currectPages.innerText="0";
+                     totalPages=0;
+                     var totalPagex=document.getElementById("totalPages");
+                     totalPagex.innerText="0";
+                     lessPageControl();
+                 };
+                }
+            });
+        };
+        }else{
+            var searchInformation=document.getElementById("searchInformation");  
+            searchInformation.placeholder="搜索信息不能为空！";
+        };
+};
+
+
+function starPageDate(){//用户，代理第一页页码控制器
     var agentor=document.getElementById("agentor");
     var custmor=document.getElementById("custmor");
+    var searchFunction=document.getElementById("searchFunction");
     agentor.onclick=function(){
         firstAdminPageData();
         pageStatus="admin";
         currectPage="1";
         currectPages.innerText=currectPage;
         firstPageSearch=false;
+        for(var i=0;i<3;i++){
+            $("#ul"+(i+1)).show();
+        };
     };
     custmor.onclick=function(){
         firstCustomerPageData();
@@ -71,6 +327,19 @@ function starPageDate(){//页面初始状态
         currectPage="1";
         currectPages.innerText=currectPage;
         firstPageSearch=false;
+        for(var i=0;i<3;i++){
+            $("#ul"+(i+1)).show();
+        };
+    };
+    searchFunction.onclick=function(){
+        firstSearchPageData();
+        pageStatus="search";
+        currectPage="1";
+        currectPages.innerText=currectPage;
+        firstPageSearch=false;
+        for(var i=0;i<3;i++){
+            $("#ul"+(i+1)).show();
+        };       
     };
 };
 
@@ -80,7 +349,14 @@ function lessPageControl(){
     var PageButton3=document.getElementById("PageButton3");
     var PageButton4=document.getElementById("PageButton4");
     var PageButton5=document.getElementById("PageButton5");
-    if(totalPages==1){
+    if(totalPages==0){
+        PageButton1.innerText="";
+        PageButton2.innerText="";
+        PageButton3.innerText="0";
+        PageButton4.innerText="";
+        PageButton5.innerText="";
+    }
+    else if(totalPages==1){
         PageButton1.innerText="";
         PageButton2.innerText="";
         PageButton3.innerText="1";
@@ -90,9 +366,6 @@ function lessPageControl(){
             currectPage=PageButton3.innerText;
             currectPages.innerText=currectPage
             //页码传给后端，请求后台数据，这里假设后端返回的数据
-            if(firstPageSearch){
-                search();
-            }else{
             $.ajax({
                 type:"POST",
                 url:"../yamj/index.php",           
@@ -106,7 +379,6 @@ function lessPageControl(){
                     curPageData(datalist);
                 }
             });
-            };
         };
     }else if(totalPages==2){
         PageButton1.innerText="";
@@ -317,6 +589,9 @@ function pageControl(){//页面控制模块
     var PageButton4=document.getElementById("PageButton4");
     var PageButton5=document.getElementById("PageButton5");
     var nextPage=document.getElementById("nextPage");
+    for(var i=0;i<3;i++){
+        $("#ul"+(i+1)).show();
+    };
     for(var i=0;i<5;i++){
         eval("PageButton"+(i+1)+".innerText="+(i+1)+";");
     };  
@@ -326,7 +601,13 @@ function pageControl(){//页面控制模块
             for(var i=0;i<5;i++){
                 eval("PageButton"+(i+1)+".innerText="+"''"+";");
             };
-            if(totalPages==1){
+            if(totalPages==0){
+                PageButton1.innerText="";
+                PageButton2.innerText="";
+                PageButton3.innerText="0";
+                PageButton4.innerText="";
+                PageButton5.innerText="";
+            }else if(totalPages==1){
                 PageButton1.innerText="";
                 PageButton2.innerText="";
                 PageButton3.innerText="1";
@@ -383,6 +664,30 @@ function pageControl(){//页面控制模块
         currectPage=PageButton1.innerText;
         currectPages.innerText=currectPage;
         //页码传给后端，请求后台数据
+        if(pageStatus=="search"){
+            var checkboxValue=document.getElementById("checkboxValue");
+            var types;
+            if(checkboxValue.checked){
+                types="admin";
+            }else{
+                types="normal";
+            };
+        $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:types,
+                name:$("#searchInformation").val(),
+                page:currectPage
+            },
+            success:function(data){
+                var datalist=eval(data);
+                curPageData(datalist);
+            }
+        });
+
+        }else{
         $.ajax({
             type:"POST",
             url:"../yamj/index.php",           
@@ -396,11 +701,36 @@ function pageControl(){//页面控制模块
                 curPageData(datalist);
             }
         });
+    };
     };
     PageButton2.onclick=function(){
         currectPage=PageButton2.innerText;
         currectPages.innerText=currectPage
         //页码传给后端，请求后台数据，这里假设后端返回的数据
+        if(pageStatus=="search"){
+            var checkboxValue=document.getElementById("checkboxValue");
+            var types;
+            if(checkboxValue.checked){
+                types="admin";
+            }else{
+                types="normal";
+            };
+        $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:types,
+                name:$("#searchInformation").val(),
+                page:currectPage
+            },
+            success:function(data){
+                var datalist=eval(data);
+                curPageData(datalist);
+            }
+        });
+
+        }else{
         $.ajax({
             type:"POST",
             url:"../yamj/index.php",           
@@ -415,10 +745,36 @@ function pageControl(){//页面控制模块
             }
         });
     };
+    };
     PageButton3.onclick=function(){
         currectPage=PageButton3.innerText;
-        currectPages.innerText=currectPage
+        currectPages.innerText=currectPage;
+        if(currectPage!="0"){
         //页码传给后端，请求后台数据，这里假设后端返回的数据
+        if(pageStatus=="search"){
+            var checkboxValue=document.getElementById("checkboxValue");
+            var types;
+            if(checkboxValue.checked){
+                types="admin";
+            }else{
+                types="normal";
+            };
+        $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:types,
+                name:$("#searchInformation").val(),
+                page:currectPage
+            },
+            success:function(data){
+                var datalist=eval(data);
+                curPageData(datalist);
+            }
+        });
+
+        }else{
         $.ajax({
             type:"POST",
             url:"../yamj/index.php",           
@@ -432,11 +788,37 @@ function pageControl(){//页面控制模块
                 curPageData(datalist);
             }
         });
+    };
+        };
     };
     PageButton4.onclick=function(){
         currectPage=PageButton4.innerText;
         currectPages.innerText=currectPage
         //页码传给后端，请求后台数据，这里假设后端返回的数据
+        if(pageStatus=="search"){
+            var checkboxValue=document.getElementById("checkboxValue");
+            var types;
+            if(checkboxValue.checked){
+                types="admin";
+            }else{
+                types="normal";
+            };
+        $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:types,
+                name:$("#searchInformation").val(),
+                page:currectPage
+            },
+            success:function(data){
+                var datalist=eval(data);
+                curPageData(datalist);
+            }
+        });
+
+        }else{
         $.ajax({
             type:"POST",
             url:"../yamj/index.php",           
@@ -450,11 +832,36 @@ function pageControl(){//页面控制模块
                 curPageData(datalist);
             }
         });
+    };
     };
     PageButton5.onclick=function(){
         currectPage=PageButton5.innerText;
         currectPages.innerText=currectPage
         //页码传给后端，请求后台数据，这里假设后端返回的数据
+        if(pageStatus=="search"){
+            var checkboxValue=document.getElementById("checkboxValue");
+            var types;
+            if(checkboxValue.checked){
+                types="admin";
+            }else{
+                types="normal";
+            };
+        $.ajax({
+            type:"POST",
+            url:"../yamj/search.php",           
+            dataType:"json",                                      
+            data:{
+                type:types,
+                name:$("#searchInformation").val(),
+                page:currectPage
+            },
+            success:function(data){
+                var datalist=eval(data);
+                curPageData(datalist);
+            }
+        });
+
+        }else{
         $.ajax({
             type:"POST",
             url:"../yamj/index.php",           
@@ -469,7 +876,7 @@ function pageControl(){//页面控制模块
             }
         });
     };
-
+    };
 };
 
 function addingDialogShow(type,box,displayValue){//增加,浮动框控制模块
@@ -478,7 +885,8 @@ function addingDialogShow(type,box,displayValue){//增加,浮动框控制模块
         var adding3=document.getElementById(type+'3');
         var boxs=document.getElementById(box);
         var addingDiamonds=document.getElementById("addingDiamonds");      
-        var addyes=document.getElementById("addyes");    
+        var addyes=document.getElementById("addyes");   
+        var agentDiamonds=document.getElementById("agentDiamonds"); 
         adding1.onclick=function(){
             boxs.style.display=displayValue;
             var Name=document.getElementById("name1");
@@ -504,6 +912,7 @@ function addingDialogShow(type,box,displayValue){//增加,浮动框控制模块
                     },
                     success:function(data){
                         Diamondsvalue.innerText=parseInt(Diamondsvalue.innerText)+parseInt(addingDiamonds.value);
+                        agentDiamonds.innerText=parseInt(agentDiamonds.innerText)-parseInt(addingDiamonds.value);
                         addingDiamonds.value="";
                         addingDiamonds.placeholder=data;
                     }
@@ -536,6 +945,7 @@ function addingDialogShow(type,box,displayValue){//增加,浮动框控制模块
                     },
                     success:function(data){
                         Diamondsvalue.innerText=parseInt(Diamondsvalue.innerText)+parseInt(addingDiamonds.value);
+                        agentDiamonds.innerText=parseInt(agentDiamonds.innerText)-parseInt(addingDiamonds.value);
                         addingDiamonds.value="";
                         addingDiamonds.placeholder=data;
                     }
@@ -568,6 +978,7 @@ function addingDialogShow(type,box,displayValue){//增加,浮动框控制模块
                     },
                     success:function(data){
                         Diamondsvalue.innerText=parseInt(Diamondsvalue.innerText)+parseInt(addingDiamonds.value);
+                        agentDiamonds.innerText=parseInt(agentDiamonds.innerText)-parseInt(addingDiamonds.value);
                         addingDiamonds.value="";
                         addingDiamonds.placeholder=data;
                     }
@@ -694,212 +1105,6 @@ function dialogHidden(button,box){//悬浮窗关闭按钮控制模块
     };
 };
 
-function search(){//搜索功能
-    searchFunction.onclick=function(){
-        var checkboxValue=document.getElementById("checkboxValue");
-        var PageButton1=document.getElementById("PageButton1");
-        var PageButton2=document.getElementById("PageButton2");
-        var PageButton3=document.getElementById("PageButton3");
-        var PageButton4=document.getElementById("PageButton4");
-        var PageButton5=document.getElementById("PageButton5");
-        var totalPag=document.getElementById("totalPages");
-        var value;
-
-        PageButton1.innerText="";
-        PageButton2.innerText="";
-        PageButton3.innerText="1";
-        PageButton4.innerText="";
-        PageButton5.innerText="";
-        firstPageSearch=true;
-        if($("#searchInformation").val()!=""){
-            if(jurisdiction=="用户"){
-                value=false;
-            }else{
-                value=checkboxValue.checked;
-            };
-        if(value){
-            $.ajax({
-            type:"POST",
-            url:"../yamj/search.php",           
-            dataType:"json",                                      
-            data:{
-                type:"admin",
-                name:$("#searchInformation").val()
-            },
-            success:function(data){
-                var dataList=eval(data);
-                for(var i=0;i<3;i++){
-                    $("#name"+(i+1)).html("");
-                    $("#value"+(i+1)).html("");
-                    $("#ID"+(i+1)).html("");
-                    $("#type"+(i+1)).html("");
-                };
-                for(var i=0;i<dataList.datalist.length;i++){
-                    var ids=document.getElementById("ID"+(i+1));
-                    var accounts=document.getElementById("name"+(i+1));
-                    var diamonds=document.getElementById("value"+(i+1));
-                    var types=document.getElementById("type"+(i+1));                    
-                    accounts.innerText=dataList.datalist[i].account;
-                    diamonds.innerText=dataList.datalist[i].diamond_number;
-                    if(dataList.datalist[i].type=="admin"){
-                       dataList.datalist[i].type="代理商";
-                    };
-                    types.innerText=dataList.datalist[i].type;
-                    ids.innerText=dataList.datalist[i].id;
-                    totalPages=dataList.page;
-                    var totalPagex=document.getElementById("totalPages");
-                    totalPagex.innerText=totalPages;
-                    currectPage=1;
-                    currectPages.innerText=currectPage;
-                    searchName=dataList.datalist[i].account;
-                    };
-                 }
-             });
-        }else{
-            $.ajax({
-            type:"POST",
-            url:"../yamj/search.php",           
-            dataType:"json",                                      
-            data:{
-                type:"normal",
-                name:$("#searchInformation").val()
-            },
-            success:function(data){
-                var dataList=eval(data);
-                for(var i=0;i<3;i++){
-                    $("#name"+(i+1)).html("");
-                    $("#value"+(i+1)).html("");
-                    $("#ID"+(i+1)).html("");
-                    $("#type"+(i+1)).html("");
-                };
-                for(var i=0;i<dataList.datalist.length;i++){//添加到的搜索信息。
-                     var ids=document.getElementById("ID"+(i+1));
-                     var accounts=document.getElementById("name"+(i+1));
-                     var diamonds=document.getElementById("value"+(i+1));
-                     var types=document.getElementById("type"+(i+1));                    
-                     ids.innerText=dataList.datalist[i].AccountID;
-                     accounts.innerText=dataList.datalist[i].PlayerName;
-                     diamonds.innerText=dataList.datalist[i].DiaMond;
-                     if(dataList.datalist[i].type=="normal"){
-                     types.innerText="用户";
-                     totalPages=dataList.page;
-                     var totalPagex=document.getElementById("totalPages");
-                     totalPagex.innerText=totalPages;
-                     currectPage=1;
-                     currectPages.innerText=currectPage;
-                     searchName=dataList.datalist[i].account;
-                     };
-                   };
-                }
-            });
-        };
-        }else{
-            var searchInformation=document.getElementById("searchInformation");  
-            searchInformation.placeholder="搜索信息不能为空！";
-        }
-    };
-};
-
-
-
-function firstCustomerPageData(){//初始化用户第一页面,并显示总页码。
-    var dataList;
-    totalPagesObject=document.getElementById("totalPages");
-    $.ajax({
-        type:"POST",
-        url:"../yamj/index.php",           
-        dataType:"json",                                      
-        data:{
-            type:"normal",
-            page:"1"
-        },
-        success:function(data){
-            dataList=eval(data);
-            totalPagesObject.innerText=dataList.page;
-            totalPages=totalPagesObject.innerText;
-            for(var i=0;i<3;i++){
-                $("#name"+(i+1)).html("");
-                $("#value"+(i+1)).html("");
-                $("#ID"+(i+1)).html("");
-                $("#type"+(i+1)).html("");
-            };
-            for(var i=0;i<dataList.datalist.length;i++){
-               var names=document.getElementById("name"+(i+1));
-               var values=document.getElementById("value"+(i+1));
-               var types=document.getElementById("type"+(i+1));
-               var IDs=document.getElementById("ID"+(i+1));
-               names.innerText=dataList.datalist[i].PlayerName;
-               if(!dataList.datalist[i].DiaMond && typeof(dataList.datalist[i].DiaMond)!="undefined" && dataList.datalist[i].DiaMond!=0){
-                   dataList.datalist[i].DiaMond="0";
-               };
-               values.innerText=dataList.datalist[i].DiaMond;
-               if(dataList.datalist[i].type=="normal"){
-                   dataList.datalist[i].type="用户";
-               };
-               types.innerText=dataList.datalist[i].type;
-               IDs.innerText=dataList.datalist[i].AccountID;
-               if(totalPages>=5){
-                   pageControl();//大于四个页面控制模块
-               }else{
-                   lessPageControl();//小于四个页面控制模块
-               };
-           };
-        }
-    });
-    var currectPages=document.getSelection("currectPages");
-    currectPage=1;
-    currectPages.innerText=currectPage;
-};
-
-
-function firstAdminPageData(){//初始化代理商第一页面,并显示总页码。
-    var dataList;
-    totalPagesObject=document.getElementById("totalPages");;
-    $.ajax({
-        type:"POST",
-        url:"../yamj/index.php",           
-        dataType:"json",                                      
-        data:{
-            type:"admin",
-            page:"1"
-        },
-        success:function(data){
-            dataList=eval(data);
-            totalPagesObject.innerText=dataList.page;
-            totalPages=totalPagesObject.innerText;
-            for(var i=0;i<3;i++){
-                $("#name"+(i+1)).html("");
-                $("#value"+(i+1)).html("");
-                $("#ID"+(i+1)).html("");
-                $("#type"+(i+1)).html("");
-            };
-            for(var i=0;i<dataList.datalist.length;i++){
-               var names=document.getElementById("name"+(i+1));
-               var values=document.getElementById("value"+(i+1));
-               var types=document.getElementById("type"+(i+1));
-               var IDs=document.getElementById("ID"+(i+1));
-               names.innerText=dataList.datalist[i].account;
-               if(dataList.datalist[i].diamond_number=="null"){
-                   dataList.datalist[i].diamond_number="0";
-               };
-               values.innerText=dataList.datalist[i].diamond_number;
-               if(dataList.datalist[i].type=="admin"){
-                   dataList.datalist[i].type="代理商";
-               };
-               types.innerText=dataList.datalist[i].type;
-               IDs.innerText=dataList.datalist[i].id;
-               if(totalPages>=5){
-                   pageControl();//大于四个页面控制模块
-               }else{
-                   lessPageControl();//小于四个页面控制模块
-               };
-           };
-        }
-    });
-    var currectPages=document.getElementById("currectPages");
-    currectPage=1;
-    currectPages.innerText=currectPage;
-};
 
 function curPageData(jsonData){//选页展示页面数据
     //解析后台的json赋值
@@ -919,6 +1124,20 @@ function curPageData(jsonData){//选页展示页面数据
             IDs.innerText=dataList.datalist[i].AccountID;
         };
     }else if(pageStatus=="admin"){
+        for(var i=0;i<dataList.datalist.length;i++){
+            var names=document.getElementById("name"+(i+1));
+            var values=document.getElementById("value"+(i+1));
+            var types=document.getElementById("type"+(i+1));
+            var IDs=document.getElementById("ID"+(i+1));
+            names.innerText=dataList.datalist[i].account;
+            values.innerText=dataList.datalist[i].diamond_number;
+            if(dataList.datalist[i].type=="admin"){
+                dataList.datalist[i].type="代理商";
+            };
+            types.innerText=dataList.datalist[i].type;
+            IDs.innerText=dataList.datalist[i].id;
+        };
+    }else if(pageStatus=="search"){
         for(var i=0;i<dataList.datalist.length;i++){
             var names=document.getElementById("name"+(i+1));
             var values=document.getElementById("value"+(i+1));
